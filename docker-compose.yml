@@ -1,0 +1,23 @@
+services:
+  frontend:
+    build: .
+    ports:
+      - "5173:5173" # Mapeamos el puerto 80 de Nginx al 5173 local
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+      - VITE_PAYMENT_MOCK_URL=http://localhost:3000
+    depends_on:
+      - payment-mock
+
+  payment-mock:
+    image: node:18-alpine
+    # Cambiamos a /app para evitar errores de permisos en la raíz
+    working_dir: /app 
+    volumes:
+      # IMPORTANTE: Según tu imagen, la ruta es esta:
+      - ./pasarela-campus-2026/pluspagos-mock-simple:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm start"
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
